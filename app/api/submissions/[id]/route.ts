@@ -15,6 +15,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (!body.action || !["APPROVE", "REJECT"].includes(body.action)) return NextResponse.json({ error: "Invalid action" }, { status: 400 })
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const submissions = db.collection("submissions")

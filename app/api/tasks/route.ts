@@ -13,6 +13,7 @@ export async function POST(req: Request) {
     const uid = decoded.uid
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const tasks = db.collection("tasks")
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   try {
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const tasks = db.collection("tasks")
 

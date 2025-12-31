@@ -12,6 +12,7 @@ export async function GET(req: Request) {
     const uid = decoded.uid
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
 

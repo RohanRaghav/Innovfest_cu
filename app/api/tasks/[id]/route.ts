@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic"
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const tasks = db.collection("tasks")
 
@@ -30,6 +31,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const uid = decoded.uid
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const tasks = db.collection("tasks")
@@ -67,6 +69,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     const uid = decoded.uid
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const tasks = db.collection("tasks")

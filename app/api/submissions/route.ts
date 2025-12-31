@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     if (!body.taskId || !body.mediaUrl) return NextResponse.json({ error: "taskId and mediaUrl are required" }, { status: 400 })
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const tasks = db.collection("tasks")
@@ -61,6 +62,7 @@ export async function GET(req: Request) {
     const uid = decoded.uid
 
     const client = await clientPromise
+    if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
     const users = db.collection("users")
     const submissions = db.collection("submissions")
