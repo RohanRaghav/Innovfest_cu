@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     const now = new Date()
-    const doc = {
+    const doc: any = {
       title: body.title,
       description: body.description || null,
       zone: body.zone || null,

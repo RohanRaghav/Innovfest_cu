@@ -32,7 +32,7 @@ const faqs = [
 ]
 
 export function FAQAccordion() {
-  const [openIndex, setOpenIndex] = useState(null)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
     <section className="mt-24 max-w-3xl mx-auto">

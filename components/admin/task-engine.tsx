@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth"
 export default function TaskEngine() {
   const { firebaseUser, profile, loading } = useAuth()
   const [tasks, setTasks] = useState<any[]>([])
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [zone, setZone] = useState("")
   const [points, setPoints] = useState(0)

@@ -34,7 +34,7 @@ export function Navbar() {
 
 useMotionValueEvent(scrollY, "change", (latest) => {
   const previous = scrollY.getPrevious();
-  if (latest > previous && latest > 80) {
+  if (previous !== undefined && latest > previous && latest > 80) {
     setHidden(true);   // scrolling down
   } else {
     setHidden(false);  // scrolling up

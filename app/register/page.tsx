@@ -42,8 +42,10 @@ export default function RegisterPage() {
   useEffect(() => {
     ;(async () => {
       const { auth } = await import("@/lib/firebaseClient")
-      const current = auth.currentUser
-      if (current?.email) setValue("email", current.email)
+      if (auth) {
+        const current = auth.currentUser
+        if (current?.email) setValue("email", current.email)
+      }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -52,6 +54,7 @@ export default function RegisterPage() {
     setIsLoading(true)
     try {
       const { auth } = await import("@/lib/firebaseClient")
+      if (!auth) throw new Error("Firebase auth is not available")
       const current = auth.currentUser
       let idToken = null
 

@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 })
 
     const now = new Date()
-    const doc = {
+    const doc: any = {
       uid,
       taskId: task._id,
       mediaUrl: body.mediaUrl,
