@@ -44,7 +44,6 @@ export default function LoginPage() {
       const user = userCredential.user
       const idToken = await user.getIdToken()
 
-      // Fetch profile from backend
       const res = await fetch("/api/users/me", {
         headers: {
           Authorization: `Bearer ${idToken}`,
@@ -53,7 +52,6 @@ export default function LoginPage() {
 
       if (!res.ok) {
         if (res.status === 404) {
-          // Profile missing: redirect to register to complete profile
           router.push("/register")
           return
         }
@@ -76,60 +74,69 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent_50%)]" />
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 relative overflow-hidden bg-[#002263] text-white font-primary">
+      {/* Background radial gradient */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(248,242,191,0.05),transparent_50%)]" />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="border-border/50 shadow-2xl backdrop-blur-sm bg-card/80">
+        <Card className="border-[#f8f2bf]/50 shadow-2xl backdrop-blur-sm bg-[#002263]/80 text-white">
           <CardHeader className="text-center space-y-2">
-            <div className="mx-auto h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2">
-              <Zap className="h-6 w-6 fill-primary" />
+            <div className="mx-auto h-12 w-12 rounded-xl bg-[#f8f2bf]/20 flex items-center justify-center text-[#f8f2bf] mb-2">
+              <Zap className="h-6 w-6 fill-[#f8f2bf]" />
             </div>
-            <CardTitle className="text-3xl font-black tracking-tight">Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-[#f8f2bf]">Welcome Back</CardTitle>
+            <CardDescription className="text-[#f8f2bf]">
+              Enter your credentials to access your dashboard
+            </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="name@example.com"
-                      className="pl-10 h-11"
-                      {...register("email")}
-                    />
-                  </div>
-                  {errors.email && <p className="text-xs text-destructive font-bold">{errors.email.message}</p>}
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[#f8f2bf]">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    className="pl-10 h-11 text-black"
+                    {...register("email")}
+                  />
                 </div>
+                {errors.email && <p className="text-xs text-[#890304] font-bold">{errors.email.message}</p>}
+              </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="#" className="text-xs text-primary font-bold hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type="password" className="pl-10 h-11" {...register("password")} />
-                  </div>
-                  {errors.password && <p className="text-xs text-destructive font-bold">{errors.password.message}</p>}
+              {/* Password */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-[#f8f2bf]">Password</Label>
+                  <Link href="#" className="text-xs text-[#f8f2bf] font-bold hover:underline">
+                    Forgot password?
+                  </Link>
                 </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
+                  <Input id="password" type="password" className="pl-10 h-11 text-black" {...register("password")} />
+                </div>
+                {errors.password && <p className="text-xs text-[#890304] font-bold">{errors.password.message}</p>}
+              </div>
 
-              <Button type="submit" className="w-full h-12 rounded-xl text-lg font-black" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full h-12 rounded-xl text-lg font-black bg-[#f8f2bf] text-[#002263] hover:bg-[#890304] hover:text-white"
+                disabled={isLoading}
+              >
                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Sign In to Portal"}
               </Button>
             </form>
           </CardContent>
+
           <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center text-muted-foreground">
+            <div className="text-sm text-center text-[#f8f2bf]">
               Don't have an account?{" "}
-              <Link href="/register" className="text-primary font-bold hover:underline">
+              <Link href="/register" className="text-[#890304] font-bold hover:underline">
                 Register as Ambassador
               </Link>
             </div>

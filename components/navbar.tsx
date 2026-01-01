@@ -71,7 +71,7 @@ useMotionValueEvent(scrollY, "change", (latest) => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="whitespace-nowrap"
       >
-       <img src="/logo.png" alt="CU TechFest CA Logo" className="h-30 w-70 object-contain"/>
+       <img src="/Logo.png" alt="CU TechFest CA Logo" className="h-30 w-70 object-contain"/>
       </motion.span>
     </Link>
 

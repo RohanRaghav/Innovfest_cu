@@ -30,9 +30,6 @@ export default function LeaderboardPage() {
       <div className="container mx-auto max-w-5xl">
         <div className="text-center mb-16">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-            <Badge variant="outline" className="mb-4 border-white/30 text-white px-4 py-1">
-              Live Rankings
-            </Badge>
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter text-white uppercase">
               The <span className="gradient-text">Hall of Fame</span>
             </h1>
