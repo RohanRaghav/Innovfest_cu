@@ -17,13 +17,13 @@ export default function AuthButtons() {
     return (
       <>
         <Link href="/login">
-          <Button variant="ghost" size="sm" className="font-bold">
+          <Button variant="ghost" size="sm" className="font-bold text-[white]">
             Login
           </Button>
         </Link>
         <Link href="/register">
-          <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 font-bold rounded-full px-6">
-            Join Now
+          <Button size="sm" className="bg-[#890304] text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 font-bold rounded-full px-6">
+            Sign Up
           </Button>
         </Link>
       </>

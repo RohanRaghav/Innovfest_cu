@@ -12,12 +12,6 @@ export function AboutProgram() {
         "Lead innovation-driven initiatives and represent CU INNOVFEST within your department and beyond.",
     },
     {
-      icon: Users,
-      title: "Pan-University Networking",
-      description:
-        "Collaborate with students, innovators, and organizers across Chandigarh University.",
-    },
-    {
       icon: Award,
       title: "Official Recognition",
       description:
@@ -25,32 +19,21 @@ export function AboutProgram() {
     },
     {
       icon: Rocket,
-      title: "Career & Growth Opportunities",
+      title: "Performance-Based Growth & Rewards",
       description:
-        "Stand out for future internships, core team roles, and leadership positions.",
-    },
-    {
-      icon: Lightbulb,
-      title: "Skill Development",
-      description:
-        "Build real-world skills in communication, management, teamwork, and execution.",
+        "Advance your skills, recognition, and rewards through measurable contributions and impactful performance at CU InnovFest.",
     },
     {
       icon: BookOpen,
-      title: "Hands-on Exposure",
+      title: "Engage. Grow. Experience. Connect.",
       description:
-        "Get direct exposure to event planning, innovation showcases, and fest operations.",
+        "The more you engage, the more you grow—gaining real-world experience while building meaningful connections and expanding your network.",
     },
   ]
 
   return (
     <section
-      className="py-32 bg-gradient-to-br 
-      from-[#cfe0f6] 
-      via-[#c9def7] 
-      via-[#dee4f3] 
-      via-[#e1e5f2] 
-      to-[#d6e1f4] relative overflow-hidden"
+      className="py-32 bg-[#002263] relative overflow-hidden"
       id="about"
     >
       <div className="container mx-auto px-4">
@@ -63,78 +46,67 @@ export function AboutProgram() {
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight leading-tight">
-                Be the Face of <br />
-                <span className="text-primary">CU INNOVFEST</span> <br />
-                on Your Campus
+              <h2 className="text-4xl md:text-5xl text-[#f8f2bf] font-black mb-6 tracking-tight leading-tight">
+                Become a Campus Ambassador
               </h2>
-
-              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                CU INNOVFEST is Chandigarh University’s flagship innovation and
-                technology festival, bringing together creativity, engineering,
-                research, and entrepreneurship under one roof. The Campus
-                Ambassador Program gives you the opportunity to be part of the
-                core force that drives this movement.
+              <h3 className="text-3xl md:4xl text-[#f8f2bf] font-black mb-6 tracking-tight leading-tight">About Us</h3>
+              <p className="text-lg mb-6 leading-relaxed text-white">
+                CU InnovFest 2026, hosted by Chandigarh University, is India’s premier innovation festival that brings together young minds, innovators, and distinguished dignitaries from diverse domains. The Campus Ambassador Program gives you the opportunity to be part of the team that drives this grand celebration of innovation. Through engaging challenges, hands-on exposure, and continuous learning, this journey transforms you from a participant into a leader.
               </p>
 
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Being a CU INNOVFEST CA is more than promotions—it’s about
-                discovering your strengths. From outreach and execution to
-                design, coordination, and strategy, you’ll work across diverse
-                domains that help you grow from a participant into a leader.
+              <p className="text-lg text-white mb-8 leading-relaxed">
+Being a Campus Ambassador isn’t just about promotion; it’s about discovering your potential. You’ll connect with students, innovators, and professionals across institutions while exploring opportunities beyond the obvious. From strategy and outreach to coordination and execution, you’ll experience diverse roles that help you build confidence and uncover your strengths.
               </p>
+              <p className="text-lg text-white mb-8 leading-relaxed">
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50 border border-border/50">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <Zap className="h-5 w-5" />
-                  </div>
-                  <span className="font-bold">
-                    Performance-Based Growth & Rewards
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50 border border-border/50">
-                  <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <span className="font-bold">
-                    Direct Mentorship from Core Organizing Team
-                  </span>
-                </div>
-              </div>
+We recognize every contribution and celebrate every milestone. The more you engage, the more you grow. Whether you’re curious, creative, analytical, or all of these—you’ll find your place here. Ready to step forward and make an impact? Join the Campus Ambassador Program and begin your CU InnovFest 2026 journey.
+              </p>
+              
             </motion.div>
           </div>
 
           {/* RIGHT GRID */}
-          <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {benefits.map((benefit, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="p-8 rounded-3xl border border-border/50 bg-card 
-                hover:border-primary/30 transition-all 
-                hover:shadow-2xl hover:shadow-primary/5 group"
-              >
-                <div
-                  className="h-12 w-12 rounded-2xl bg-primary/5 
-                  flex items-center justify-center text-primary mb-6 
-                  group-hover:bg-primary group-hover:text-primary-foreground transition-all"
-                >
-                  <benefit.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-black text-xl mb-3">
-                  {benefit.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {benefit.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+         <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+  {benefits.map((benefit, i) => {
+    const isLight = i % 4 === 0 || i % 4 === 3
+
+    return (
+      <motion.div
+        key={i}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.1 }}
+        viewport={{ once: true }}
+        className={`p-8 rounded-3xl border transition-all 
+          hover:shadow-2xl group
+          ${isLight 
+            ? "bg-[#e8e5c3] text-black border-black/10"
+            : "bg-[#890304] text-white border-white/10"
+          }
+        `}
+      >
+        <div
+          className={`h-12 w-12 rounded-2xl flex items-center justify-center mb-6 transition-all
+            ${isLight
+              ? "bg-black/10 text-black group-hover:bg-black group-hover:text-white"
+              : "bg-white/10 text-white group-hover:bg-white group-hover:text-[#890304]"
+            }
+          `}
+        >
+          <benefit.icon className="h-6 w-6" />
+        </div>
+
+        <h3 className="font-black text-xl mb-3">
+          {benefit.title}
+        </h3>
+
+        <p className={`text-sm leading-relaxed ${isLight ? "text-black/70" : "text-white/80"}`}>
+          {benefit.description}
+        </p>
+      </motion.div>
+    )
+  })}
+</div>
         </div>
       </div>
     </section>

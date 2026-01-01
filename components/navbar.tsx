@@ -25,7 +25,7 @@ export function Navbar() {
   scrollY,
   [0, 60],
   [
-    "linear-gradient(135deg, #cfe0f6, #c9def7, #dee4f3, #e1e5f2, #d6e1f4)",
+    " #002263",
     "transparent"
   ]
 )
@@ -61,9 +61,7 @@ useMotionValueEvent(scrollY, "change", (latest) => {
       className="flex items-center gap-2 font-bold text-2xl tracking-tight z-50 overflow-hidden"
     >
       {/* ⚡ Zap ICON — NEVER MOVES */}
-      <Zap className="h-7 w-7 text-primary fill-primary shrink-0" />
-
-      {/* TEXT — SLIDES & DISAPPEARS */}
+     
       <motion.span
         initial={false}
         animate={{
@@ -73,16 +71,14 @@ useMotionValueEvent(scrollY, "change", (latest) => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="whitespace-nowrap"
       >
-        <span className="gradient-text">
-          CU Innovfest <span className="text-foreground">CA</span>
-        </span>
+       <img src="/logo.png" alt="CU TechFest CA Logo" className="h-30 w-70 object-contain"/>
       </motion.span>
     </Link>
 
         {/* Desktop Nav */}
       <nav
   className="hidden md:flex gap-20 text-sm font-semibold 
-  bg-[#0f2a53] 
+  bg-[#890304] 
   px-6 py-3 
   rounded-xl 
   shadow-md"

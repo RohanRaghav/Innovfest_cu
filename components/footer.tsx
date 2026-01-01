@@ -6,20 +6,15 @@ import { Zap, Github, Twitter, Instagram, Linkedin, Mail } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-muted/30 bg-gradient-to-br 
-  from-[#cfe0f6] 
-  via-[#c9def7] 
-  via-[#dee4f3] 
-  via-[#e1e5f2] 
-  to-[#d6e1f4] backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-12 md:py-16">
+    <footer className="border-t border-border/40 bg-[#002263] backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-12 md:py-16 text-white">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight mb-6">
-              <Zap className="h-8 w-8 text-primary fill-primary animate-pulse" />
-              <span className="gradient-text">CU TechFest CA</span>
+              <Zap className="h-8 w-8 text-primary fill-white animate-pulse" />
+              <span className="gradient-text">CU Innovfest CA</span>
             </Link>
-            <p className="text-muted-foreground text-lg max-w-sm mb-8">
+            <p className="text-white text-lg max-w-sm mb-8">
               Empowering student leaders to bridge the gap between innovation and campus life. Represent, Lead, and
               Grow.
             </p>
@@ -34,7 +29,7 @@ export function Footer() {
                   key={i}
                   href={social.href}
                   whileHover={{ y: -5, scale: 1.1 }}
-                  className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+                  className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   <social.icon className="h-5 w-5" />
                 </motion.a>
@@ -44,9 +39,9 @@ export function Footer() {
 
           <div>
             <h4 className="font-bold text-lg mb-6">Quick Links</h4>
-            <ul className="space-y-4 text-muted-foreground">
+            <ul className="space-y-4 text-white">
               <li>
-                <Link href="/about" className="hover:text-primary transition-colors">
+                <Link href="#about" className="hover:text-primary transition-colors">
                   About Program
                 </Link>
               </li>
@@ -61,7 +56,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="hover:text-primary transition-colors">
+                <Link href="/contact" className="hover:text-primary transition-colors">
                   FAQs
                 </Link>
               </li>
@@ -70,9 +65,9 @@ export function Footer() {
 
           <div>
             <h4 className="font-bold text-lg mb-6">Contact Us</h4>
-            <ul className="space-y-4 text-muted-foreground">
+            <ul className="space-y-4 text-white">
               <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-primary" />
+                <Mail className="h-4 w-4 text-primary" fill="white" />
                 <span>techfest@cu.ac.in</span>
               </li>
               <li>Chandigarh University, NH-95, Mohali, Punjab</li>
@@ -80,7 +75,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col md:row items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col md:row items-center justify-between gap-4 text-sm text-white">
           <p>© 2025 CU TechFest. All rights reserved.</p>
           <div className="flex gap-8">
             <Link href="/privacy" className="hover:text-primary">

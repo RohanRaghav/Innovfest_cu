@@ -8,20 +8,20 @@ import { Trophy, Gift, Smartphone, Monitor, Star, ShieldCheck, Award } from "luc
 export default function RewardsPage() {
   const tiers = [
     {
-      rank: "Top 01",
+      rank: "Top 50",
       title: "Diamond Elite",
-      prize: "Gaming Laptop + PS5",
-      benefits: ["VIP Invite to CU Convocation", "3-Month Paid Internship", "Global Press Release"],
+      prize: "Free Hostel Accomodation",
+      benefits: ["Best CA Award", "Exclusive Event", "Offline LOI", "Goodies and Merchandise"],
       icon: Crown,
       color: "text-yellow-500",
       bg: "bg-yellow-500/10",
       border: "border-yellow-500/20",
     },
     {
-      rank: "Top 02-10",
+      rank: "Top 100",
       title: "Platinum Force",
-      prize: "Flagship Smartphone",
-      benefits: ["Core Team Direct Entry", "Official CA Toolkit", "Exclusive Workshops"],
+      prize: "50% free Hostel Accomodation",
+      benefits: ["Free any Two Events", "Goodies and Merchandise", "Offline Certificate"],
       icon: Star,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
@@ -30,8 +30,8 @@ export default function RewardsPage() {
     {
       rank: "Top 11-50",
       title: "Gold Vanguard",
-      prize: "Noise Cancelling Headphones",
-      benefits: ["Merchandise Box", "Achievement Trophy", "Digital Badges"],
+      prize: "25% free Hostel Accomodation",
+      benefits: ["Free any one Events", "Goodies and Merchandise", "Offline Certificate"],
       icon: ShieldCheck,
       color: "text-amber-600",
       bg: "bg-amber-600/10",
@@ -40,27 +40,25 @@ export default function RewardsPage() {
   ]
 
   return (
-    <div className="min-h-screen py-24 px-4 relative overflow-hidden bg-gradient-to-br 
-  from-[#cfe0f6] 
-  via-[#c9def7] 
-  via-[#dee4f3] 
-  via-[#e1e5f2] 
-  to-[#d6e1f4]">
+    <div className="min-h-screen py-24 px-4 relative overflow-hidden bg-[#002263]">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(var(--primary-rgb),0.05),transparent_50%)]" />
 
       <div className="container mx-auto max-w-6xl">
         <header className="text-center mb-24">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Badge className="mb-6 bg-primary/10 text-primary border-none px-6 py-1.5 text-sm font-black">
+            <Badge className="mb-6 bg-primary/10 text-white border-none px-6 py-1.5 text-sm font-black">
               2025 REWARD SEASON
             </Badge>
-            <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter uppercase leading-[0.85]">
+            <h1 className="text-6xl md:text-8xl text-white font-black mb-8 tracking-tighter uppercase leading-[0.85]">
               REAP THE <br />
               <span className="gradient-text">BENEFITS</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed ">
               Your dedication to represent CU TechFest earns you more than just a title. Unlock exclusive hardware,
               career opportunities, and recognition.
+            </p>
+             <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed ">
+              Note : All CA’s Will get certificate of excellence and VIP Passes  
             </p>
           </motion.div>
         </header>
@@ -101,11 +99,11 @@ export default function RewardsPage() {
         </div>
 
         <section className="bg-muted/50 rounded-[3rem] p-12 md:p-20 relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid text-white grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl font-black mb-6 uppercase leading-tight">
                 How are rewards <br />
-                <span className="text-primary">Allocated?</span>
+                <span className="text-white">Allocated?</span>
               </h2>
               <div className="space-y-8">
                 {[
@@ -114,19 +112,19 @@ export default function RewardsPage() {
                   { title: "Zone Evaluation", desc: "Your Zone Head's feedback adds to your final ranking weight." },
                 ].map((step, i) => (
                   <div key={i} className="flex gap-6">
-                    <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-black shrink-0">
+                    <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black shrink-0">
                       0{i + 1}
                     </div>
                     <div>
                       <h4 className="font-black text-lg mb-1">{step.title}</h4>
-                      <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
+                      <p className="text-white leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-[3rem] bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-12">
+              <div className="aspect-square rounded-[3rem] from-primary/20 to-secondary/20 flex items-center justify-center p-12">
                 <div className="grid grid-cols-2 gap-4 w-full h-full">
                   <div className="bg-card rounded-2xl shadow-xl flex items-center justify-center animate-float">
                     <Gift className="h-12 w-12 text-primary" />

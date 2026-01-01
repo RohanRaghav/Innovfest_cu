@@ -32,14 +32,9 @@ const admins = [
 export default function Page() {
   return (
     <main
-      className="min-h-screen container mx-auto px-6 py-16 bg-gradient-to-br
-      from-[#cfe0f6]
-      via-[#c9def7]
-      via-[#dee4f3]
-      via-[#e1e5f2]
-      to-[#d6e1f4]"
+      className="min-h-screen container mx-auto px-6 py-16 bg-[#002263]"
     >
-      <h1 className="text-4xl font-black mb-12 text-center">Contact Our Team</h1>
+      <h1 className="text-4xl font-black mb-12 text-white text-center">Contact Our Team</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 place-items-center">
         {admins.map((admin, i) => (

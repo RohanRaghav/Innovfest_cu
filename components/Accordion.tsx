@@ -36,7 +36,7 @@ export function FAQAccordion() {
 
   return (
     <section className="mt-24 max-w-3xl mx-auto">
-      <h2 className="text-3xl font-black text-center mb-10">
+      <h2 className="text-3xl text-white font-black text-center mb-10">
         Frequently Asked Questions
       </h2>
 
