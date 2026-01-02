@@ -70,13 +70,25 @@ export async function PATCH(req: Request) {
       const normalized = raw === "ZONE_HEAD" || raw === "ZONE-HEAD" ? "ZONE_HEAD" : raw
       updateData.role = normalized
 
-      // if assigning zone head, determine zone from user's pinCode and ensure uniqueness
+      // if assigning zone head, determine zone from user's pinCode by consulting zones collection and ensure uniqueness
       if (normalized === "ZONE_HEAD") {
         const db = client.db()
         const usersColl = db.collection("users")
+        const zonesColl = db.collection("zones")
         const target = await usersColl.findOne({ _id: new ObjectId(userId) })
         const pin = (target && target.pinCode) || ""
-        const zone = getZoneFromPin(pin)
+
+        // try to find a configured zone whose prefixes match the pin
+        const allZones = await zonesColl.find().toArray()
+        let matchedZone: string | null = null
+        for (const z of allZones) {
+          if (Array.isArray(z.pinPrefixes) && z.pinPrefixes.some((p: string) => pin.startsWith(String(p)))) {
+            matchedZone = z.name
+            break
+          }
+        }
+
+        const zone = matchedZone || getZoneFromPin(pin)
 
         // check for existing zone head in same zone
         const existing = await usersColl.findOne({ role: "ZONE_HEAD", zone: zone, _id: { $ne: new ObjectId(userId) } })
