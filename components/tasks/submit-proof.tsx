@@ -13,7 +13,8 @@ export default function SubmitProof({ taskId }: { taskId: string }) {
 
   async function handleUpload() {
     if (!file) return alert("Select a file")
-    if (!firebaseUser) return alert("Please login to submit")
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login to submit")
 
     setUploading(true)
 
@@ -36,10 +37,9 @@ export default function SubmitProof({ taskId }: { taskId: string }) {
       const uploadJson = await uploadRes.json()
       const mediaUrl = uploadJson.secure_url
 
-      const idToken = await firebaseUser.getIdToken()
       const res = await fetch("/api/submissions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ taskId, mediaUrl, note }),
       })
 

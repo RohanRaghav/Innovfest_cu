@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server"
-import admin from "@/lib/firebaseAdmin"
 import clientPromise from "@/lib/mongodb"
+import jwt from "jsonwebtoken"
+import { ObjectId } from "mongodb"
+
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret"
 
 export async function POST(req: Request) {
   // Create submission (any authenticated CA/ZONE_HEAD/ADMIN)
   try {
     const authHeader = req.headers.get("authorization")
     if (!authHeader?.startsWith("Bearer ")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    const idToken = authHeader.split(" ")[1]
+    const token = authHeader.split(" ")[1]
 
-    const decoded = await admin.auth().verifyIdToken(idToken)
-    const uid = decoded.uid
+    const payload: any = jwt.verify(token, JWT_SECRET)
+    const userId = payload?.userId
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const body = await req.json()
     if (!body.taskId || !body.mediaUrl) return NextResponse.json({ error: "taskId and mediaUrl are required" }, { status: 400 })
@@ -22,15 +26,16 @@ export async function POST(req: Request) {
     const tasks = db.collection("tasks")
     const submissions = db.collection("submissions")
 
-    const user = await users.findOne({ uid })
+    const user = await users.findOne({ _id: new ObjectId(userId) })
     if (!user) return NextResponse.json({ error: "User profile not found" }, { status: 404 })
 
-    const task = await tasks.findOne({ _id: new (require("mongodb").ObjectId)(body.taskId) })
+    const task = await tasks.findOne({ _id: new ObjectId(body.taskId) })
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 })
 
     const now = new Date()
     const doc: any = {
-      uid,
+      userId: String(user._id),
+      userEmail: user.email || null,
       taskId: task._id,
       mediaUrl: body.mediaUrl,
       note: body.note || null,
@@ -56,10 +61,11 @@ export async function GET(req: Request) {
   try {
     const authHeader = req.headers.get("authorization")
     if (!authHeader?.startsWith("Bearer ")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    const idToken = authHeader.split(" ")[1]
+    const token = authHeader.split(" ")[1]
 
-    const decoded = await admin.auth().verifyIdToken(idToken)
-    const uid = decoded.uid
+    const payload: any = jwt.verify(token, JWT_SECRET)
+    const userId = payload?.userId
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const client = await clientPromise
     if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
@@ -67,7 +73,7 @@ export async function GET(req: Request) {
     const users = db.collection("users")
     const submissions = db.collection("submissions")
 
-    const requester = await users.findOne({ uid })
+    const requester = await users.findOne({ _id: new ObjectId(userId) })
     if (!requester) return NextResponse.json({ error: "Profile not found" }, { status: 404 })
     if (requester.role === "ADMIN") {
       const all = await submissions.find().sort({ createdAt: -1 }).toArray()
@@ -82,4 +88,4 @@ export async function GET(req: Request) {
     console.error(err)
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 })
   }
-}
+} 

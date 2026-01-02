@@ -7,13 +7,14 @@ import { Users, ClipboardCheck, AlertCircle, BarChart3, ArrowRight, CheckCircle2
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function ZoneHeadDashboard() {
   const { firebaseUser, profile, loading } = useAuth()
   const router = useRouter()
+  const [statsData, setStatsData] = useState<any>(null)
 
   useEffect(() => {
     if (loading) return
@@ -22,28 +23,36 @@ export default function ZoneHeadDashboard() {
       if (profile.role === "ADMIN") router.push("/admin")
       else if (profile.role === "CA") router.push("/dashboard")
     }
+    // fetch zone stats for zone-head
+    async function loadStats() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+      if (!token) return
+      const res = await fetch("/api/zone/stats", { headers: { Authorization: `Bearer ${token}` } })
+      if (res.ok) {
+        const d = await res.json()
+        setStatsData(d)
+      }
+    }
+
+    if (profile?.role === "ZONE_HEAD") loadStats()
   }, [firebaseUser, profile, loading, router])
   const stats = [
-    { label: "Active Ambassadors", value: "124", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Pending Reviews", value: "18", icon: ClipboardCheck, color: "text-orange-500", bg: "bg-orange-500/10" },
-    { label: "Avg. Consistency", value: "88%", icon: BarChart3, color: "text-green-500", bg: "bg-green-500/10" },
-    { label: "Urgent Actions", value: "02", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10" },
+    { label: "Active Ambassadors", value: statsData ? String(statsData.activeAmbassadors) : "—", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Pending Reviews", value: statsData ? String(statsData.pendingReviews) : "—", icon: ClipboardCheck, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { label: "Avg. Consistency", value: "—", icon: BarChart3, color: "text-green-500", bg: "bg-green-500/10" },
+    { label: "Urgent Actions", value: "—", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10" },
   ]
 
-  const submissions = [
-    { id: 1, name: "Sarah Miller", task: "Event Promotion", time: "2h ago", status: "Pending" },
-    { id: 2, name: "David Chen", task: "Social Media Campaign", time: "5h ago", status: "Pending" },
-    { id: 3, name: "Emma Wilson", task: "Content Creation", time: "1d ago", status: "Pending" },
-  ]
+  const submissions = [] // use submissions API on the reviews page/component
 
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       <header className="flex flex-col md:row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black mb-2">North Zone Control</h1>
+          <h1 className="text-3xl font-black mb-2">{statsData?.zone ?? profile?.zone ?? "Zone"} Zone Control</h1>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
-            Zone Head: <span className="text-primary font-bold">Marcus Thorne</span>
-            <Badge className="bg-primary/10 text-primary border-none">124 Members</Badge>
+            Zone Head: <span className="text-primary font-bold">{profile?.fullName ?? statsData?.zoneHead?.fullName ?? "—"}</span>
+            <Badge className="bg-primary/10 text-primary border-none">{statsData ? `${statsData.activeAmbassadors} Members` : "— Members"}</Badge>
           </p>
         </div>
         <div className="flex gap-4">
@@ -127,17 +136,13 @@ export default function ZoneHeadDashboard() {
               <CardTitle className="text-xl font-black">Zone Leaderboard</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {[
-                { name: "Sarah Miller", pts: 2450, rank: 1 },
-                { name: "John Smith", pts: 2100, rank: 2 },
-                { name: "Alex Johnson", pts: 1850, rank: 3 },
-              ].map((member, i) => (
-                <div key={i} className="flex items-center justify-between">
+              {(statsData?.topMembers || []).map((member: any, i: number) => (
+                <div key={member._id ?? i} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="font-black text-sm opacity-50">0{member.rank}</span>
-                    <span className="font-bold text-sm">{member.name}</span>
+                    <span className="font-black text-sm opacity-50">0{i + 1}</span>
+                    <span className="font-bold text-sm">{member.fullName ?? member.email}</span>
                   </div>
-                  <span className="text-sm font-black">{member.pts} pts</span>
+                  <span className="text-sm font-black">{member.points ?? 0} pts</span>
                 </div>
               ))}
               <Button variant="secondary" className="w-full rounded-xl font-bold h-11 border-none shadow-lg">

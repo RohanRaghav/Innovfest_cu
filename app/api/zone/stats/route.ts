@@ -18,12 +18,24 @@ export async function GET(req: Request) {
     const client = await clientPromise
     if (!client) return NextResponse.json({ error: "Database not configured" }, { status: 500 })
     const db = client.db()
+
     const users = db.collection("users")
+    const submissions = db.collection("submissions")
 
-    const user = await users.findOne({ _id: new ObjectId(userId) }, { projection: { passwordHash: 0 } })
-    if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 })
+    const requester = await users.findOne({ _id: new ObjectId(userId) })
+    if (!requester) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-    return NextResponse.json({ user })
+    const zone = requester.zone || "Unknown"
+
+    const activeAmbassadors = await users.countDocuments({ role: "CA", zone })
+    const pendingReviews = await submissions.countDocuments({ zone, status: "PENDING" })
+    const topMembers = await users
+      .find({ zone }, { projection: { passwordHash: 0 } })
+      .sort({ points: -1 })
+      .limit(10)
+      .toArray()
+
+    return NextResponse.json({ zone, activeAmbassadors, pendingReviews, topMembers, zoneHead: requester })
   } catch (err: any) {
     console.error(err)
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 })

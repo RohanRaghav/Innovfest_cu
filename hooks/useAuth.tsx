@@ -1,11 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { onAuthStateChanged } from "firebase/auth"
-import { auth } from "@/lib/firebaseClient"
 
 export type UserProfile = {
-  uid: string
+  _id: string
   email: string
   fullName?: string
   phone?: string
@@ -20,36 +18,43 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!auth) {
-      setLoading(false)
-      return
+    const init = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+      if (!token) {
+        setFirebaseUser(null)
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+
+      try {
+        const res = await fetch("/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { user: u } = await res.json()
+          setProfile(u)
+          setFirebaseUser(u) // backwards compatibility for components that check firebaseUser
+        } else {
+          setProfile(null)
+          setFirebaseUser(null)
+        }
+      } catch (err) {
+        setProfile(null)
+        setFirebaseUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      setFirebaseUser(user)
-      if (user) {
-        const idToken = await user.getIdToken()
-        try {
-          const res = await fetch("/api/users/me", {
-            headers: { Authorization: `Bearer ${idToken}` },
-          })
-          if (res.ok) {
-            const { user: u } = await res.json()
-            setProfile(u)
-          } else {
-            setProfile(null)
-          }
-        } catch (err) {
-          setProfile(null)
-        }
-      } else {
-        setProfile(null)
-      }
-      setLoading(false)
-    })
-
-    return () => unsub()
+    init()
   }, [])
 
-  return { firebaseUser, profile, loading }
+  const logout = () => {
+    localStorage.removeItem("token")
+    setProfile(null)
+    setFirebaseUser(null)
+  }
+
+  return { firebaseUser, profile, loading, logout }
 }

@@ -35,32 +35,26 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
     try {
-      const { signInWithEmailAndPassword } = await import("firebase/auth")
-      const { auth } = await import("@/lib/firebaseClient")
-
-      if (!auth) throw new Error("Firebase client not configured")
-
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password)
-      const user = userCredential.user
-      const idToken = await user.getIdToken()
-
-      const res = await fetch("/api/users/me", {
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-        },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
       })
 
       if (!res.ok) {
-        if (res.status === 404) {
-          router.push("/register")
-          return
-        }
-        throw new Error("Failed to fetch profile")
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err?.error || "Login failed")
       }
 
       const payload = await res.json()
-      const role = payload?.user?.role || "CA"
+      const token = payload?.token
+      const user = payload?.user
 
+      if (!token || !user) throw new Error("Invalid response from server")
+
+      localStorage.setItem("token", token)
+
+      const role = user?.role || "CA"
       setIsLoading(false)
 
       if (role === "ADMIN") router.push("/admin")
@@ -101,7 +95,7 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="name@example.com"
-                    className="pl-10 h-11 text-black"
+                    className="pl-10 h-11 text-white"
                     {...register("email")}
                   />
                 </div>
@@ -118,7 +112,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
-                  <Input id="password" type="password" className="pl-10 h-11 text-black" {...register("password")} />
+                  <Input id="password" type="password" className="pl-10 h-11 text-white" {...register("password")} />
                 </div>
                 {errors.password && <p className="text-xs text-[#890304] font-bold">{errors.password.message}</p>}
               </div>

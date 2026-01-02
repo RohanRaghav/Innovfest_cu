@@ -8,13 +8,15 @@ import { Trophy, Target, Zap, Clock, Star, TrendingUp, ArrowUpRight } from "luci
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function CADashboard() {
   const { firebaseUser, profile, loading } = useAuth()
   const router = useRouter()
+  const [tasks, setTasks] = useState<any[]>([])
+  const rewardTarget = Number(process.env.NEXT_PUBLIC_REWARD_TARGET || 2000)
 
   useEffect(() => {
     if (loading) return
@@ -24,28 +26,33 @@ export default function CADashboard() {
       if (profile.role === "ADMIN") router.push("/admin")
       else if (profile.role === "ZONE_HEAD") router.push("/zone-head")
     }
+    async function loadTasks() {
+      const res = await fetch('/api/tasks')
+      if (res.ok) {
+        const d = await res.json()
+        setTasks((d.tasks || []).filter((t: any) => !!t.active))
+      }
+    }
+
+    loadTasks()
   }, [firebaseUser, profile, loading, router])
   const stats = [
-    { label: "Total Points", value: "1,250", icon: Star, color: "text-yellow-500", bg: "bg-yellow-500/10" },
-    { label: "Zone Rank", value: "#04", icon: Target, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Global Rank", value: "#42", icon: Trophy, color: "text-secondary", bg: "bg-secondary/10" },
-    { label: "Completed", value: "12/15", icon: Zap, color: "text-green-500", bg: "bg-green-500/10" },
+    { label: "Total Points", value: profile?.points ? String(profile.points) : "—", icon: Star, color: "text-yellow-500", bg: "bg-yellow-500/10" },
+    { label: "Zone Rank", value: "—", icon: Target, color: "text-primary", bg: "bg-primary/10" },
+    { label: "Global Rank", value: "—", icon: Trophy, color: "text-secondary", bg: "bg-secondary/10" },
+    { label: "Completed", value: profile?.tasksDone ? `${profile.tasksDone}/15` : "—/15", icon: Zap, color: "text-green-500", bg: "bg-green-500/10" },
   ]
 
-  const tasks = [
-    { id: 1, title: "Social Media Campaign", deadline: "2 days left", points: 200, status: "Active", type: "Promo" },
-    { id: 2, title: "University Tech Meetup", deadline: "4 days left", points: 500, status: "Pending", type: "Event" },
-    { id: 3, title: "Content Creation", deadline: "Completed", points: 150, status: "Approved", type: "Digital" },
-  ]
+  // show active tasks; include inactive toggle elsewhere if needed
 
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       <header className="flex flex-col md:row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black mb-2">Welcome Back, Alex!</h1>
+          <h1 className="text-3xl font-black mb-2">Welcome Back, {profile?.fullName ?? "Ambassador"}!</h1>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
-            <Badge className="bg-primary/10 text-primary border-none">North Zone</Badge>
-            Chandigarh University Representative
+            <Badge className="bg-primary/10 text-primary border-none">{profile?.zone ?? "— Zone"}</Badge>
+            {profile?.college ?? "Representative"}
           </p>
         </div>
         <Link href="/dashboard/tasks">
@@ -97,11 +104,11 @@ export default function CADashboard() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <Badge className="bg-secondary/10 text-secondary border-none text-[10px] font-black uppercase">
-                      {task.type}
+                      {task.type || 'Task'}
                     </Badge>
                     <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      {task.deadline}
+                      {task.deadline || ''}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -132,14 +139,14 @@ export default function CADashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-4 flex justify-between items-end">
-                <span className="text-3xl font-black">75%</span>
-                <span className="text-xs font-bold uppercase">1,250 / 2,000 pts</span>
-              </div>
-              <Progress value={75} className="h-3 bg-white/20" />
-              <p className="mt-6 text-sm font-medium leading-relaxed opacity-90">
-                You're just 750 points away from qualifying for the TechFest Silver Tier rewards!
-              </p>
+                  <div className="mb-4 flex justify-between items-end">
+                    <span className="text-3xl font-black">{profile?.points ? Math.min(100, Math.round((profile.points / rewardTarget) * 100)) : 0}%</span>
+                    <span className="text-xs font-bold uppercase">{profile?.points ?? 0} / {rewardTarget} pts</span>
+                  </div>
+                  <Progress value={profile?.points ? Math.min(100, (profile.points / rewardTarget) * 100) : 0} className="h-3 bg-white/20" />
+                  <p className="mt-6 text-sm font-medium leading-relaxed opacity-90">
+                    You're just {Math.max(0, (rewardTarget - (profile?.points || 0)))} points away from qualifying for the next reward tier.
+                  </p>
             </CardContent>
             <div className="absolute top-0 right-0 h-full w-1/4 bg-white/10 skew-x-12 translate-x-10" />
           </Card>

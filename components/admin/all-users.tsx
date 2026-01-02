@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
 type User = {
-  uid: string
+  _id: string
   email: string
   fullName?: string
   zone?: string
@@ -15,34 +15,36 @@ type User = {
 }
 
 export default function AllUsers() {
-  const { firebaseUser, profile, loading } = useAuth()
+  const { profile, loading } = useAuth()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
     if (loading) return
-    if (!firebaseUser) return router.push("/login")
+    if (!profile) return router.push("/login")
     if (profile?.role !== "ADMIN") return router.push("/")
 
     fetchUsers()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseUser, loading])
+  }, [profile, loading])
 
   async function fetchUsers() {
     setFetching(true)
-    const idToken = await firebaseUser.getIdToken()
-    const res = await fetch("/api/users", { headers: { Authorization: `Bearer ${idToken}` } })
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return setFetching(false)
+    const res = await fetch("/api/users", { headers: { Authorization: `Bearer ${token}` } })
     const data = await res.json()
     setUsers(data.users || [])
     setFetching(false)
   }
 
-  async function updateRole(uid: string, role: string) {
-    const idToken = await firebaseUser.getIdToken()
-    const res = await fetch(`/api/users/${uid}`, {
+  async function updateRole(id: string, role: string) {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
+    const res = await fetch(`/api/users/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ role }),
     })
     if (res.ok) fetchUsers()
@@ -54,13 +56,13 @@ export default function AllUsers() {
       <h2 className="text-2xl font-black mb-4">All Users</h2>
       <div className="space-y-4">
         {users.map((u) => (
-          <div key={u.uid} className="flex items-center justify-between gap-4 p-4 border rounded-xl">
+          <div key={u._id} className="flex items-center justify-between gap-4 p-4 border rounded-xl">
             <div>
               <div className="font-bold">{u.fullName || u.email}</div>
               <div className="text-sm text-muted-foreground">{u.email} • {u.zone || "-"}</div>
             </div>
             <div className="flex items-center gap-4">
-              <Select onValueChange={(val) => updateRole(u.uid, val)} defaultValue={u.role}>
+              <Select onValueChange={(val) => updateRole(u._id, val)} defaultValue={u.role}>
                 <SelectTrigger className="w-40 h-11">
                   <SelectValue />
                 </SelectTrigger>

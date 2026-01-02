@@ -19,6 +19,9 @@ export function Navbar() {
   if (pathname.startsWith("/admin")) {
     return null
   }
+  if (pathname.startsWith("/zone-head")) {
+    return null
+  }
   const [isOpen, setIsOpen] = useState(false)
   const { scrollY } = useScroll()
   const backgroundColor = useTransform(

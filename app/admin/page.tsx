@@ -12,13 +12,16 @@ const AllUsers = dynamic(() => import("@/components/admin/all-users"), { ssr: fa
 const TaskEngine = dynamic(() => import("@/components/admin/task-engine"), { ssr: false })
 const SubmissionsAdmin = dynamic(() => import("@/components/admin/submissions"), { ssr: false })
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function AdminDashboard() {
   const { firebaseUser, profile, loading } = useAuth()
   const router = useRouter()
+  const [zonesData, setZonesData] = useState<any[]>([])
+  const [activeTasksCount, setActiveTasksCount] = useState<number | null>(null)
+  const [totalAdmins, setTotalAdmins] = useState<number | null>(null)
 
   useEffect(() => {
     if (loading) return
@@ -27,13 +30,38 @@ export default function AdminDashboard() {
       if (profile.role === "ZONE_HEAD") router.push("/zone-head")
       else router.push("/dashboard")
     }
+
+    async function loadAdminData() {
+      // zones
+      const z = await fetch('/api/admin/zones')
+      if (z.ok) {
+        const d = await z.json()
+        setZonesData(d.zones || [])
+      }
+      // tasks
+      const t = await fetch('/api/tasks')
+      if (t.ok) {
+        const td = await t.json()
+        setActiveTasksCount((td.tasks || []).filter((tt: any) => !!tt.active).length)
+      }
+      // admins
+      const u = await fetch('/api/admin/users')
+      if (u.ok) {
+        const ud = await u.json()
+        setTotalAdmins((ud || []).filter((x: any) => x.role === 'ADMIN').length)
+      }
+    }
+
+    loadAdminData()
   }, [firebaseUser, profile, loading, router])
 
+  const totalZones = zonesData.length
+  const totalAmbassadors = zonesData.reduce((s, z) => s + (z.ambassadors || 0), 0)
   const systemStats = [
-    { label: "Total Zones", value: "04", icon: Map, color: "text-primary" },
-    { label: "Total Ambassadors", value: "842", icon: Users, color: "text-secondary" },
-    { label: "Active Tasks", value: "24", icon: Activity, color: "text-green-500" },
-    { label: "Core Team", value: "12", icon: Shield, color: "text-orange-500" },
+    { label: "Total Zones", value: String(totalZones), icon: Map, color: "text-primary" },
+    { label: "Total Ambassadors", value: String(totalAmbassadors), icon: Users, color: "text-secondary" },
+    { label: "Active Tasks", value: activeTasksCount !== null ? String(activeTasksCount) : "—", icon: Activity, color: "text-green-500" },
+    { label: "Core Team", value: totalAdmins !== null ? String(totalAdmins) : "—", icon: Shield, color: "text-orange-500" },
   ]
 
   const zones = [
@@ -53,7 +81,19 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex gap-4">
-          <Button variant="outline" className="rounded-xl h-12 px-6 font-bold bg-transparent gap-2">
+          <Button onClick={async () => {
+            const res = await fetch('/api/admin/export-states')
+            if (!res.ok) return alert('Failed to export')
+            const blob = await res.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'users_states.csv'
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+          }} variant="outline" className="rounded-xl h-12 px-6 font-bold bg-transparent gap-2">
             <Download className="h-4 w-4" /> Export Report
           </Button>
           <Button className="rounded-xl h-12 px-6 font-bold gap-2">
@@ -125,13 +165,13 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50">
-                      {zones.map((zone, i) => (
+                      {zonesData.map((zone, i) => (
                         <tr key={i} className="hover:bg-muted/30 transition-colors group">
-                          <td className="px-6 py-4 font-black">{zone.name}</td>
-                          <td className="px-6 py-4 font-bold text-muted-foreground">{zone.head}</td>
-                          <td className="px-6 py-4 font-bold">{zone.count}</td>
+                          <td className="px-6 py-4 font-black">{zone.zone}</td>
+                          <td className="px-6 py-4 font-bold text-muted-foreground">{zone.head ?? '-'}</td>
+                          <td className="px-6 py-4 font-bold">{zone.ambassadors}</td>
                           <td className="px-6 py-4">
-                            <span className="text-green-500 font-bold">{zone.trend}</span>
+                            <span className="text-green-500 font-bold">—</span>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <Button variant="ghost" size="icon" className="group-hover:text-primary transition-colors">

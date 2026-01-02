@@ -5,23 +5,23 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function SubmissionsAdmin() {
-  const { firebaseUser, profile, loading } = useAuth()
+  const { profile, loading } = useAuth()
   const [subs, setSubs] = useState<any[]>([])
   const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
     if (loading) return
-    if (!firebaseUser) return
     if (!profile) return
     if (!(profile.role === "ADMIN" || profile.role === "ZONE_HEAD")) return
     fetchSubs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseUser, loading])
+  }, [profile, loading])
 
   async function fetchSubs() {
     setFetching(true)
-    const idToken = await (firebaseUser as any).getIdToken()
-    const res = await fetch("/api/submissions", { headers: { Authorization: `Bearer ${idToken}` } })
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return setFetching(false)
+    const res = await fetch("/api/submissions", { headers: { Authorization: `Bearer ${token}` } })
     const data = await res.json()
     setSubs(data.submissions || [])
     setFetching(false)
@@ -32,10 +32,11 @@ export default function SubmissionsAdmin() {
     const pointsInput = window.prompt("Points to award (leave blank for default task points)")
     const points = pointsInput ? Number(pointsInput) : undefined
 
-    const idToken = await (firebaseUser as any).getIdToken()
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
     const res = await fetch(`/api/submissions/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ action, note, points }),
     })
     if (res.ok) fetchSubs()
@@ -50,7 +51,7 @@ export default function SubmissionsAdmin() {
           <div key={s._id} className="p-4 border rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-bold">{s.uid}</div>
+                <div className="font-bold">{s.userEmail || s.userId || s.uid}</div>
                 <div className="text-sm text-muted-foreground">Task: {s.taskId} • {s.zone}</div>
               </div>
               <div className="text-sm font-bold uppercase">{s.status}</div>

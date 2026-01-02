@@ -9,8 +9,9 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth"
 
 export default function TaskEngine() {
-  const { firebaseUser, profile, loading } = useAuth()
+  const { profile, loading } = useAuth()
   const [tasks, setTasks] = useState<any[]>([])
+  const [filter, setFilter] = useState("all")
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [zone, setZone] = useState("")
@@ -28,13 +29,15 @@ export default function TaskEngine() {
   }
 
   async function createTask() {
-    if (!firebaseUser) return alert("Please sign in as admin")
+    if (!profile) return alert("Please sign in as admin")
     if (profile?.role !== "ADMIN") return alert("Only admin can create tasks")
 
-    const idToken = await firebaseUser.getIdToken()
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
+
     const res = await fetch("/api/tasks", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ title, description, zone, points }),
     })
     if (res.ok) {
@@ -59,10 +62,11 @@ export default function TaskEngine() {
 
   async function saveEdit() {
     if (!editingTaskId) return
-    const idToken = await firebaseUser.getIdToken()
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
     const res = await fetch(`/api/tasks/${editingTaskId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ title, description, zone, points }),
     })
     if (res.ok) {
@@ -80,13 +84,26 @@ export default function TaskEngine() {
 
   async function deleteTask(id: string) {
     if (!confirm("Delete this task?")) return
-    const idToken = await firebaseUser.getIdToken()
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
     const res = await fetch(`/api/tasks/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${idToken}` },
+      headers: { Authorization: `Bearer ${token}` },
     })
     if (res.ok) fetchTasks()
     else alert("Failed to delete task")
+  }
+
+  async function toggleActive(id: string, current: boolean) {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
+    const res = await fetch(`/api/tasks/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ active: !current }),
+    })
+    if (res.ok) fetchTasks()
+    else alert("Failed to update task")
   }
 
   return (
@@ -134,8 +151,17 @@ export default function TaskEngine() {
         <Button variant="outline" onClick={fetchTasks}>Refresh</Button>
       </div>
 
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-bold">Show:</label>
+        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="p-2 rounded">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
       <div className="space-y-4">
-        {tasks.map((t) => (
+        {tasks.filter(t => filter === "all" ? true : filter === "active" ? !!t.active : !t.active).map((t) => (
           <div key={t._id} className="p-4 border rounded-xl">
             <div className="flex items-center justify-between">
               <div>
@@ -144,6 +170,13 @@ export default function TaskEngine() {
               </div>
             </div>
             <div className="mt-2 text-sm">{t.description}</div>
+            <div className="mt-3 flex gap-2">
+              <Button size="sm" onClick={() => startEdit(t)}>Edit</Button>
+              <Button size="sm" variant="outline" onClick={() => deleteTask(t._id)}>Delete</Button>
+              <Button size="sm" variant={t.active ? "secondary" : "ghost"} onClick={() => toggleActive(t._id, !!t.active)}>
+                {t.active ? 'Deactivate' : 'Activate'}
+              </Button>
+            </div>
           </div>
         ))}
       </div>

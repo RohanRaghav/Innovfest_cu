@@ -70,26 +70,12 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true)
     try {
-      const { auth } = await import("@/lib/firebaseClient")
-      if (!auth) throw new Error("Firebase auth is not available")
-      const current = auth.currentUser
-      let idToken = null
-
-      if (!current) {
-        const { createUserWithEmailAndPassword } = await import("firebase/auth")
-        const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
-        idToken = await userCredential.user.getIdToken()
-      } else {
-        idToken = await current.getIdToken()
-      }
-
-      const res = await fetch("/api/users", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          email: data.email,
+          password: data.password,
           fullName: data.fullName,
           phone: data.phone,
           pinCode: data.pinCode,
@@ -98,8 +84,17 @@ export default function RegisterPage() {
         }),
       })
 
-      if (!res.ok) throw new Error("Failed to save profile")
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err?.error || "Registration failed")
+      }
 
+      const payload = await res.json()
+      const token = payload?.token
+
+      if (!token) throw new Error("Invalid response from server")
+
+      localStorage.setItem("token", token)
       setIsLoading(false)
       router.push("/dashboard")
     } catch (err) {
@@ -137,20 +132,20 @@ export default function RegisterPage() {
                   <Label htmlFor="fullName" className="text-[#f8f2bf]">Full Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
-                    <Input id="fullName" placeholder="John Doe" className="pl-10 h-11 text-black" {...register("fullName")} />
+                    <Input id="fullName" placeholder="John Doe" className="pl-10 h-11 text-white" {...register("fullName")} />
                   </div>
                   {errors.fullName && <p className="text-xs text-[#890304] font-bold">{errors.fullName.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[#f8f2bf]">Email Address</Label>
+                  <Label htmlFor="email" className="text-[#f8f2bf]">College Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="john@university.edu"
-                      className="pl-10 h-11 text-black"
+                      className="pl-10 h-11 text-white"
                       {...register("email")}
                     />
                   </div>
@@ -161,7 +156,7 @@ export default function RegisterPage() {
                   <Label htmlFor="phone" className="text-[#f8f2bf]">Phone Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
-                    <Input id="phone" placeholder="+91 00000 00000" className="pl-10 h-11 text-black" {...register("phone")} />
+                    <Input id="phone" type="number" placeholder="+91 00000 00000" className="pl-10 h-11 text-white" {...register("phone")} />
                   </div>
                   {errors.phone && <p className="text-xs text-[#890304] font-bold">{errors.phone.message}</p>}
                 </div>
@@ -170,26 +165,26 @@ export default function RegisterPage() {
                   <Label htmlFor="pinCode" className="text-[#f8f2bf]">Pin Code</Label>
                   <div className="relative">
                     <Home className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
-                    <Input id="pinCode" placeholder="160047" className="pl-10 h-11 text-black" {...register("pinCode")} />
+                    <Input id="pinCode" placeholder="160047" className="pl-10 h-11 text-white" {...register("pinCode")} />
                   </div>
                   {errors.pinCode && <p className="text-xs text-[#890304] font-bold">{errors.pinCode.message}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-[#f8f2bf]">City</Label>
-                  <Input id="city" placeholder="City" className="h-11 text-black" {...register("city")} readOnly />
+                  <Input id="city" placeholder="City" className="h-11 text-white" {...register("city")} readOnly />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="state" className="text-[#f8f2bf]">State</Label>
-                  <Input id="state" placeholder="State" className="h-11 text-black" {...register("state")} readOnly />
+                  <Input id="state" placeholder="State" className="h-11 text-white" {...register("state")} readOnly />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="password" className="text-[#f8f2bf]">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-[#f8f2bf]" />
-                    <Input id="password" type="password" className="pl-10 h-11 text-black" {...register("password")} />
+                    <Input id="password" type="password" className="pl-10 h-11 text-white" {...register("password")} />
                   </div>
                   {errors.password && <p className="text-xs text-[#890304] font-bold">{errors.password.message}</p>}
                 </div>

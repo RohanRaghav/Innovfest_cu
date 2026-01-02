@@ -4,11 +4,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
-import { signOut } from "firebase/auth"
-import { auth } from "@/lib/firebaseClient"
 
 export default function AuthButtons() {
-  const { firebaseUser, profile, loading } = useAuth()
+  const { firebaseUser, profile, loading, logout } = useAuth()
   const router = useRouter()
 
   if (loading) return null
@@ -32,12 +30,7 @@ export default function AuthButtons() {
 
   const handleSignOut = async () => {
     try {
-      if (!auth) {
-        // auth not configured; just redirect
-        router.push("/")
-        return
-      }
-      await signOut(auth)
+      logout()
       router.push("/")
     } catch (err) {
       console.error(err)

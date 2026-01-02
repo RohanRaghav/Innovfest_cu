@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -10,20 +10,23 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LeaderboardPage() {
   const [view, setView] = useState("global")
+  const [rankings, setRankings] = useState<any[]>([])
 
-  const globalRankings = [
-    { id: 1, name: "Alex Rivard", zone: "North", points: 4250, change: "up", avatar: "AR" },
-    { id: 2, name: "Sarah Chen", zone: "South", points: 4120, change: "down", avatar: "SC" },
-    { id: 3, name: "Marcus Miller", zone: "West", points: 3980, change: "up", avatar: "MM" },
-    { id: 4, name: "Elena K.", zone: "East", points: 3750, change: "stable", avatar: "EK" },
-    { id: 5, name: "Jordan P.", zone: "North", points: 3600, change: "up", avatar: "JP" },
-    { id: 6, name: "Riley S.", zone: "South", points: 3450, change: "down", avatar: "RS" },
-    { id: 7, name: "Casey D.", zone: "West", points: 3320, change: "stable", avatar: "CD" },
-    { id: 8, name: "Taylor L.", zone: "North", points: 3100, change: "up", avatar: "TL" },
-  ]
+  useEffect(() => {
+    async function load() {
+      const res = await fetch('/api/leaderboard')
+      if (res.ok) {
+        const d = await res.json()
+        // ✅ Filter out admin users
+        const nonAdmins = (d.users || []).filter((u: any) => u.role !== "ADMIN")
+        setRankings(nonAdmins)
+      }
+    }
+    load()
+  }, [])
 
-  const podium = globalRankings.slice(0, 3)
-  const rest = globalRankings.slice(3)
+  const podium = rankings.slice(0, 3)
+  const rest = rankings.slice(3)
 
   return (
     <div className="min-h-screen py-20 px-4 bg-[#002263]">
@@ -55,8 +58,8 @@ export default function LeaderboardPage() {
           </Tabs>
 
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search ambassadors..." className="pl-10 h-12 rounded-xl bg-white border-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#f8f2bf]/70" />
+            <Input placeholder="Search ambassadors..." className="pl-10 h-12 rounded-xl bg-[#f8f2bf] border-none text-[#002263]" />
           </div>
         </div>
 
@@ -69,16 +72,16 @@ export default function LeaderboardPage() {
             transition={{ delay: 0.2 }}
             className="order-2 md:order-1"
           >
-            <Card className="border-border/50 bg-[#f8f2bf] backdrop-blur-sm relative overflow-hidden pt-20 pb-8 px-6 text-center">
-              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full bg-slate-300 flex items-center justify-center border-4 border-background text-2xl font-black">
+            <Card className="border-[#002263]/50 bg-[#f8f2bf] backdrop-blur-sm relative overflow-hidden pt-20 pb-8 px-6 text-center">
+              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full bg-[#002263]/20 flex items-center justify-center border-4 border-[#002263] text-2xl font-black">
                 2
               </div>
-              <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-4 border-2 border-slate-200">
-                <Medal className="h-10 w-10" />
+              <div className="h-20 w-20 rounded-full bg-[#f8f2bf] flex items-center justify-center text-[#002263] mx-auto mb-4 border-2 border-[#002263]">
+                <Medal className="h-10 w-10 text-[#890304]" />
               </div>
-              <h3 className="font-black text-xl mb-1">{podium[1].name}</h3>
-              <p className="text-sm font-bold text-muted-foreground mb-4">{podium[1].zone} Zone</p>
-              <div className="text-2xl font-black text-primary">{podium[1].points} PTS</div>
+              <h3 className="font-black text-xl mb-1 text-[#002263]">{podium[1]?.fullName ?? podium[1]?.email}</h3>
+              <p className="text-sm font-bold text-[#002263]/70 mb-4">{podium[1]?.zone ?? "—"} Zone</p>
+              <div className="text-2xl font-black text-[#890304]">{podium[1]?.points ?? 0} PTS</div>
             </Card>
           </motion.div>
 
@@ -89,16 +92,16 @@ export default function LeaderboardPage() {
             transition={{ type: "spring", damping: 10 }}
             className="order-1 md:order-2"
           >
-            <Card className="border-primary/30 bg-[#890304] backdrop-blur-sm relative overflow-hidden pt-25 pb-10 px-6 text-center shadow-2xl shadow-primary/20 scale-105">
-              <div className="absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-20 rounded-full bg-yellow-400 flex items-center justify-center border-4 border-background text-3xl font-black text-white animate-glow">
+            <Card className="border-[#890304]/50 bg-[#890304] backdrop-blur-sm relative overflow-hidden pt-25 pb-10 px-6 text-center shadow-2xl shadow-[#890304]/20 scale-105">
+              <div className="absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-20 rounded-full bg-[#f8f2bf] flex items-center justify-center border-4 border-[#f8f2bf] text-3xl font-black text-[#002263] animate-glow">
                 1
               </div>
-              <div className="h-24 w-24 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mx-auto mb-6 border-2 border-yellow-200">
+              <div className="h-24 w-24 rounded-full bg-[#f8f2bf] flex items-center justify-center text-[#890304] mx-auto mb-6 border-2 border-[#f8f2bf]">
                 <Crown className="h-12 w-12" />
               </div>
-              <h3 className="font-black text-2xl text-white mb-1">{podium[0].name}</h3>
-              <p className="text-sm font-bold text-white mb-6">{podium[0].zone} Zone</p>
-              <div className="text-4xl font-black text-white">{podium[0].points} PTS</div>
+              <h3 className="font-black text-2xl text-[#f8f2bf] mb-1">{podium[0]?.fullName ?? podium[0]?.email}</h3>
+              <p className="text-sm font-bold text-[#f8f2bf]/80 mb-6">{podium[0]?.zone ?? "—"} Zone</p>
+              <div className="text-4xl font-black text-[#f8f2bf]">{podium[0]?.points ?? 0} PTS</div>
             </Card>
           </motion.div>
 
@@ -109,16 +112,16 @@ export default function LeaderboardPage() {
             transition={{ delay: 0.3 }}
             className="order-3"
           >
-            <Card className="border-border/50 bg-[#f8f2bf] backdrop-blur-sm relative overflow-hidden pt-20 pb-8 px-6 text-center">
-              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full bg-amber-600/40 flex items-center justify-center border-4 border-background text-2xl font-black">
+            <Card className="border-[#002263]/50 bg-[#f8f2bf] backdrop-blur-sm relative overflow-hidden pt-20 pb-8 px-6 text-center">
+              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full bg-[#890304]/30 flex items-center justify-center border-4 border-[#002263] text-2xl font-black">
                 3
               </div>
-              <div className="h-20 w-20 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mx-auto mb-4 border-2 border-amber-100">
+              <div className="h-20 w-20 rounded-full bg-[#f8f2bf] flex items-center justify-center text-[#890304] mx-auto mb-4 border-2 border-[#002263]">
                 <Trophy className="h-10 w-10" />
               </div>
-              <h3 className="font-black text-xl mb-1">{podium[2].name}</h3>
-              <p className="text-sm font-bold text-muted-foreground mb-4">{podium[2].zone} Zone</p>
-              <div className="text-2xl font-black text-primary">{podium[2].points} PTS</div>
+              <h3 className="font-black text-xl mb-1 text-[#002263]">{podium[2]?.fullName ?? podium[2]?.email}</h3>
+              <p className="text-sm font-bold text-[#002263]/70 mb-4">{podium[2]?.zone ?? "—"} Zone</p>
+              <div className="text-2xl font-black text-[#890304]">{podium[2]?.points ?? 0} PTS</div>
             </Card>
           </motion.div>
         </div>
@@ -133,17 +136,17 @@ export default function LeaderboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <div className="flex items-center gap-6 p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/30 transition-all group">
-                  <div className="text-2xl font-black text-muted-foreground w-10">#{rank.id}</div>
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center font-black text-lg">
-                    {rank.avatar}
+                <div className="flex items-center gap-6 p-6 rounded-2xl bg-[#f8f2bf] border border-[#002263]/50 hover:border-[#890304]/50 transition-all group">
+                  <div className="text-2xl font-black text-[#002263] w-10">#{rank.id}</div>
+                  <div className="h-12 w-12 rounded-full bg-[#002263]/10 flex items-center justify-center font-black text-lg text-[#002263]">
+                    {((rank.fullName || rank.email) && (rank.fullName || rank.email).slice(0,2).toUpperCase()) || "—"}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-bold text-lg">{rank.name}</h4>
-                    <p className="text-sm font-medium text-muted-foreground">{rank.zone} Zone</p>
+                    <h4 className="font-bold text-lg text-[#002263]">{rank.fullName ?? rank.email}</h4>
+                    <p className="text-sm font-medium text-[#002263]/70">{rank.zone ?? "—"} Zone</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-black text-primary mb-1">{rank.points}</div>
+                    <div className="text-xl font-black text-[#890304] mb-1">{rank.points ?? 0}</div>
                     <div className="flex items-center justify-end gap-1 text-xs font-bold uppercase tracking-wider">
                       {rank.change === "up" && (
                         <>
@@ -153,14 +156,14 @@ export default function LeaderboardPage() {
                       )}
                       {rank.change === "down" && (
                         <>
-                          <ArrowDown className="h-3 w-3 text-destructive" />
-                          <span className="text-destructive">Falling</span>
+                          <ArrowDown className="h-3 w-3 text-red-600" />
+                          <span className="text-red-600">Falling</span>
                         </>
                       )}
                       {rank.change === "stable" && (
                         <>
-                          <Minus className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-muted-foreground">Stable</span>
+                          <Minus className="h-3 w-3 text-[#002263]/60" />
+                          <span className="text-[#002263]/60">Stable</span>
                         </>
                       )}
                     </div>
