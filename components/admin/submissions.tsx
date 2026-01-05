@@ -27,6 +27,22 @@ export default function SubmissionsAdmin() {
     setFetching(false)
   }
 
+  async function exportAnalytics() {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert('Please login')
+    const zone = profile?.role === 'ZONE_HEAD' ? profile.zone : ''
+    const res = await fetch(`/api/analytics/export${zone ? `?zone=${zone}` : ''}`, { headers: { Authorization: `Bearer ${token}` } })
+    if (!res.ok) return alert('Failed to export')
+    const csv = await res.text()
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `analytics-${zone || 'all'}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function review(id: string, action: "APPROVE" | "REJECT") {
     const note = window.prompt("Notes (optional)") || undefined
     const pointsInput = window.prompt("Points to award (leave blank for default task points)")
@@ -46,6 +62,10 @@ export default function SubmissionsAdmin() {
   return (
     <div>
       <h2 className="text-2xl font-black mb-4">Submissions</h2>
+      <div className="flex justify-end mb-4">
+        <Button onClick={exportAnalytics}>Export Analytics</Button>
+      </div>
+
       <div className="space-y-4">
         {subs.map((s) => (
           <div key={s._id} className="p-4 border rounded-xl">

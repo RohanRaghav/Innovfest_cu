@@ -21,6 +21,8 @@ export async function POST(req: Request) {
     const user = await users.findOne({ email: email.toLowerCase() })
     if (!user) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
 
+    if (!user.emailVerified) return NextResponse.json({ error: "Email not verified. Please verify your email before logging in." }, { status: 403 })
+
     const match = await bcrypt.compare(password, user.passwordHash || "")
     if (!match) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
 

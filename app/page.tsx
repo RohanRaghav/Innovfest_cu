@@ -50,7 +50,7 @@ export default function LandingPage() {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="text-3xl md:text-5xl lg:text-6xl font-markpro font-bold leading-[0.9] text-[#e8e5c3] mb-8"
             >
-              COLLEGE AMBASSADOR <br />
+              CAMPUS AMBASSADOR <br />
               <span className="gradient-text">PROGRAM</span>
             </motion.h1>
 

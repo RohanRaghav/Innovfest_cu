@@ -18,7 +18,10 @@ export default function DashboardTasksPage() {
   }, [])
 
   async function fetchTasks() {
-    const res = await fetch("/api/tasks")
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    const headers: any = {}
+    if (token) headers.Authorization = `Bearer ${token}`
+    const res = await fetch("/api/tasks", { headers })
     const data = await res.json()
     const all = data.tasks || []
     setTasks(all)
@@ -44,7 +47,10 @@ export default function DashboardTasksPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">{t.description}</p>
+                <div>
+                  <p className="text-sm text-muted-foreground">{t.description}</p>
+                  <p className="text-xs text-muted-foreground mt-2">Deadline: {t.deadline ? new Date(t.deadline).toLocaleString() : '—'}</p>
+                </div>
                 <div className="flex items-center gap-2">
                   <SubmitProof taskId={String(t._id)} />
                 </div>

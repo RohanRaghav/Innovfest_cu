@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
+import { getZoneFromState, normalizeZoneName } from "@/lib/zone"
 
 function getZoneFromPin(pin: string) {
   if (!pin || pin.length === 0) return "Unknown"
@@ -89,14 +90,34 @@ export async function PATCH(req: Request) {
         }
 
         const zone = matchedZone || getZoneFromPin(pin)
+        const canonicalZone = normalizeZoneName(zone) || zone
 
-        // check for existing zone head in same zone
-        const existing = await usersColl.findOne({ role: "ZONE_HEAD", zone: zone, _id: { $ne: new ObjectId(userId) } })
+        // check for existing zone head in same canonical zone
+        const existing = await usersColl.findOne({ role: "ZONE_HEAD", zone: canonicalZone, _id: { $ne: new ObjectId(userId) } })
         if (existing) {
-          return NextResponse.json({ error: `Zone head already exists for zone ${zone}` }, { status: 400 })
+          return NextResponse.json({ error: `Zone head already exists for zone ${canonicalZone}` }, { status: 400 })
+        }
+        // also check legacy records that might have non-canonical zone strings
+        const zhs = await usersColl.find({ role: "ZONE_HEAD", _id: { $ne: new ObjectId(userId) } }).toArray()
+        for (const zh of zhs) {
+          const zhRaw = getZoneFromState(zh.state) || zh.zone || null
+          const zhZone = zhRaw ? normalizeZoneName(zhRaw) : null
+          if (zhZone === canonicalZone) {
+            // canonicalize stored value and reject
+            if (zh.zone !== canonicalZone) await usersColl.updateOne({ _id: zh._id }, { $set: { zone: canonicalZone } })
+            return NextResponse.json({ error: `Zone head already exists for zone ${canonicalZone}` }, { status: 400 })
+          }
         }
 
-        updateData.zone = zone
+        updateData.zone = canonicalZone
+        // after successfully becoming a zone head, trigger assignment for this zone
+        try {
+          const db = client.db()
+          const { assignZoneHeadToZone } = await import('@/lib/assignZone')
+          await assignZoneHeadToZone(db, canonicalZone)
+        } catch (e) {
+          console.error('Failed to run targeted zone assignment after promoting a zone head', e)
+        }
       }
     }
     if (points !== undefined) updateData.points = Number(points)

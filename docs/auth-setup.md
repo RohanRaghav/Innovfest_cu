@@ -20,10 +20,17 @@ Follow these steps to enable authentication and the database for the project.
 4. Start the dev server
    - `pnpm dev`
 
-5. First user to register will automatically be made `ADMIN` (server logic sets role ADMIN when users collection is empty). After that, admin can change roles in Admin → All Users.
+5. Email service (optional, but required for verification and notifications)
+   - Add SMTP env vars to `.env.local`:
+     - SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, FROM_EMAIL
+   - Optionally set `EMAIL_SECRET` for verification tokens (default uses `JWT_SECRET`).
+
+6. First user to register will automatically be made `ADMIN` (server logic sets role ADMIN when users collection is empty). After that, admin can change roles in Admin → All Users.
 
 Notes:
 - The server verifies Firebase ID tokens using the Admin SDK before writing/reading user profiles.
 - Tasks are managed via Admin → Task Engine and stored in `tasks` collection in MongoDB.
+- New email verification and notification system uses SMTP and sends verification emails when users register. Use the `/api/auth/verify` endpoint for verification links.
+- Admin can import users via `/api/admin/import-users` (POST raw CSV body), and admins can resend verification via `/api/admin/resend-verification/[id]`.
 
 If you want, I can add environment validation checks that run at startup and show a clear error message if any required config is missing.

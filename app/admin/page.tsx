@@ -32,20 +32,24 @@ export default function AdminDashboard() {
     }
 
     async function loadAdminData() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+      const headers: any = {}
+      if (token) headers.Authorization = `Bearer ${token}`
+
       // zones
-      const z = await fetch('/api/admin/zones')
+      const z = await fetch('/api/admin/zones', { headers })
       if (z.ok) {
         const d = await z.json()
         setZonesData(d.zones || [])
       }
       // tasks
-      const t = await fetch('/api/tasks')
+      const t = await fetch('/api/tasks', { headers })
       if (t.ok) {
         const td = await t.json()
         setActiveTasksCount((td.tasks || []).filter((tt: any) => !!tt.active).length)
       }
       // admins
-      const u = await fetch('/api/admin/users')
+      const u = await fetch('/api/admin/users', { headers })
       if (u.ok) {
         const ud = await u.json()
         setTotalAdmins((ud || []).filter((x: any) => x.role === 'ADMIN').length)
@@ -226,6 +230,45 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="p-4">
                 <SubmissionsAdmin />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="text-2xl font-black">Audit Logs / System Backfill</CardTitle>
+              <CardDescription>Run system-level maintenance tasks from here</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 space-y-4">
+                <div className="flex gap-2 items-center">
+                  <Button onClick={async () => {
+                    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+                    if (!token) return alert('Please login as ADMIN')
+                    if (!confirm('Run full backfill to assign zones for all CAs? This will update zone and zoneHead links across the system.')) return
+                    try {
+                      const res = await fetch('/api/admin/assign-zones', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                      const d = res.ok ? await res.json().catch(() => ({})) : (await res.json().catch(() => ({})))
+                      alert('Backfill complete. Updated: ' + (d.updated ?? 'unknown'))
+                      // reload zones and stats
+                      const z = await fetch('/api/admin/zones')
+                      if (z.ok) {
+                        const dd = await z.json().catch(() => ({}))
+                        setZonesData(dd.zones || [])
+                      }
+                    } catch (e) {
+                      alert('Backfill failed: ' + String(e))
+                    }
+                  }} className="px-4 py-2 rounded bg-secondary text-white">Backfill Assign Zones</Button>
+                  <div className="text-sm text-muted-foreground">Use this to re-run the zone→zoneHead assignment for the whole system.</div>
+                </div>
+
+                <div>
+                  <div className="font-bold mb-2">Audit Notes</div>
+                  <div className="text-sm text-muted-foreground">Triggering the backfill will update CA records' <code>zone</code>, <code>zoneHeadId</code> and <code>zoneHeadName</code> fields based on canonical mapping and configured zones. It does not change tasks or submissions.</div>
+                </div>
               </div>
             </CardContent>
           </Card>

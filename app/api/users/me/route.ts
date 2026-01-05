@@ -23,7 +23,14 @@ export async function GET(req: Request) {
     const user = await users.findOne({ _id: new ObjectId(userId) }, { projection: { passwordHash: 0 } })
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-    return NextResponse.json({ user })
+    // If user has zoneHeadId, include brief zoneHead info
+    let zoneHead = null
+    if (user.zoneHeadId) {
+      const zh = await users.findOne({ _id: new ObjectId(user.zoneHeadId) }, { projection: { passwordHash: 0 } })
+      if (zh) zoneHead = { _id: String(zh._id), fullName: zh.fullName, email: zh.email, zone: zh.zone }
+    }
+
+    return NextResponse.json({ user: { ...user, zoneHead } })
   } catch (err: any) {
     console.error(err)
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 })

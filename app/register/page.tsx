@@ -21,6 +21,9 @@ const registerSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().min(2, "State is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  college: z.string().optional(),
+  uid: z.string().optional(),
+  referralCode: z.string().optional(),
 })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
@@ -81,6 +84,9 @@ export default function RegisterPage() {
           pinCode: data.pinCode,
           city: data.city,
           state: data.state,
+          college: data.college,
+          uid: data.uid,
+          referralCode: data.referralCode,
         }),
       })
 
@@ -90,13 +96,16 @@ export default function RegisterPage() {
       }
 
       const payload = await res.json()
-      const token = payload?.token
 
-      if (!token) throw new Error("Invalid response from server")
+      // Server will ask to verify email before accessing account
+      if (payload?.ok) {
+        setIsLoading(false)
+        alert("Registration successful. Please check your email and verify your account before logging in.")
+        router.push("/login")
+        return
+      }
 
-      localStorage.setItem("token", token)
-      setIsLoading(false)
-      router.push("/dashboard")
+      throw new Error("Unexpected response from server")
     } catch (err) {
       console.error(err)
       setIsLoading(false)
@@ -187,6 +196,21 @@ export default function RegisterPage() {
                     <Input id="password" type="password" className="pl-10 h-11 text-white" {...register("password")} />
                   </div>
                   {errors.password && <p className="text-xs text-[#890304] font-bold">{errors.password.message}</p>}
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="college" className="text-[#f8f2bf]">College</Label>
+                  <Input id="college" placeholder="College name" className="h-11 text-white" {...register("college")} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="uid" className="text-[#f8f2bf]">UID</Label>
+                  <Input id="uid" placeholder="UID" className="h-11 text-white" {...register("uid")} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="referralCode" className="text-[#f8f2bf]">Referral Code (optional)</Label>
+                  <Input id="referralCode" placeholder="ABC123" className="h-11 text-white" {...register("referralCode")} />
                 </div>
               </div>
 

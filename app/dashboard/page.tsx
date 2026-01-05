@@ -108,7 +108,7 @@ export default function CADashboard() {
                     </Badge>
                     <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      {task.deadline || ''}
+                      {task.deadline ? new Date(task.deadline).toLocaleString() : ''}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">

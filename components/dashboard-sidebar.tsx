@@ -14,6 +14,7 @@ import {
   Map,
   Users,
   ShieldAlert,
+  Eye,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,14 +35,18 @@ export function DashboardSidebar({ role }: SidebarProps) {
     ],
     ZONE_HEAD: [
       { name: "Zone Overview", href: "/zone-head", icon: LayoutDashboard },
-      { name: "Review Tasks", href: "/zone-head/reviews", icon: ClipboardList },
-      { name: "Ambassadors", href: "/zone-head/ambassadors", icon: Users },
+      { name: "Your Tasks", href: "/zone-head/tasks", icon: ClipboardList },
+      { name: "Task Engine", href: "/zone-head/task-engine", icon: ClipboardList },
+      { name: "CA Submissions", href: "/zone-head/submissions", icon: Eye },
+      { name: "My Team", href: "/zone-head/team", icon: Users },
       { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
     ],
     ADMIN: [
       { name: "Core Dashboard", href: "/admin", icon: LayoutDashboard },
       { name: "Manage Zones", href: "/admin/zones", icon: Map },
       { name: "All Users", href: "/admin/users", icon: Users },
+      { name: "Task Engine", href: "/admin/tasks", icon: ClipboardList },
+      { name: "CA Submissions", href: "/admin/submissions", icon: Eye },
       { name: "System Logs", href: "/admin/logs", icon: ShieldAlert },
     ],
   }

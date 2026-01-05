@@ -50,6 +50,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (body.zone !== undefined) update.zone = body.zone
     if (body.points !== undefined) update.points = Number(body.points)
     if (body.active !== undefined) update.active = !!body.active
+    if (body.deadline !== undefined) update.deadline = body.deadline ? new Date(body.deadline) : null
     update.updatedAt = new Date()
 
     await tasks.updateOne({ _id: new ObjectId(params.id) }, { $set: update })

@@ -22,8 +22,23 @@ export default function TaskEngine() {
     fetchTasks()
   }, [])
 
+  function toLocalDatetimeInput(val?: string | null) {
+    if (!val) return ""
+    const d = new Date(val)
+    const pad = (n: number) => String(n).padStart(2, "0")
+    const YYYY = d.getFullYear()
+    const MM = pad(d.getMonth() + 1)
+    const DD = pad(d.getDate())
+    const hh = pad(d.getHours())
+    const mm = pad(d.getMinutes())
+    return `${YYYY}-${MM}-${DD}T${hh}:${mm}`
+  }
+
   async function fetchTasks() {
-    const res = await fetch("/api/tasks")
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    const headers: any = {}
+    if (token) headers.Authorization = `Bearer ${token}`
+    const res = await fetch("/api/tasks", { headers })
     const data = await res.json()
     setTasks(data.tasks || [])
   }
@@ -106,6 +121,44 @@ export default function TaskEngine() {
     else alert("Failed to update task")
   }
 
+  // Assignment to zone-heads
+  const [zoneHeads, setZoneHeads] = useState<any[]>([])
+  const [selectedZHTaskId, setSelectedZHTaskId] = useState<string | null>(null)
+  const [selectedZoneHeads, setSelectedZoneHeads] = useState<string[]>([])
+
+  useEffect(() => {
+    fetchZoneHeads()
+  }, [])
+
+  async function fetchZoneHeads() {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    const headers: any = {}
+    if (token) headers.Authorization = `Bearer ${token}`
+    const res = await fetch("/api/users", { headers })
+    const data = await res.json().catch(() => ({}))
+    const heads = (data.users || []).filter((u: any) => u.role === "ZONE_HEAD")
+    setZoneHeads(heads)
+  }
+
+  async function assignTaskToZoneHeads() {
+    if (!selectedZHTaskId) return alert("Select a task")
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return alert("Please login")
+    const res = await fetch("/api/assignments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ taskId: selectedZHTaskId, assigneeIds: selectedZoneHeads }),
+    })
+    if (res.ok) {
+      alert("Task assigned to Zone Heads")
+      setSelectedZHTaskId(null)
+      setSelectedZoneHeads([])
+    } else {
+      const err = await res.json().catch(() => ({}))
+      alert("Failed: " + (err?.error || res.status))
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -160,6 +213,31 @@ export default function TaskEngine() {
         </select>
       </div>
 
+      <div className="p-4 border rounded-xl">
+        <div className="font-bold mb-3">Assign Task to Zone Heads</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <Label>Select Task</Label>
+            <select value={selectedZHTaskId || ""} onChange={(e) => setSelectedZHTaskId(e.target.value)} className="p-2 w-full border rounded">
+              <option value="">Choose a task...</option>
+              {tasks.map((t) => <option key={t._id} value={t._id}>{t.title} • {t.zone || "All"}</option>)}
+            </select>
+          </div>
+          <div>
+            <Label>Select Zone Heads</Label>
+            <select
+              multiple
+              value={selectedZoneHeads}
+              onChange={(e) => setSelectedZoneHeads(Array.from(e.target.selectedOptions).map((o) => o.value))}
+              className="p-2 w-full border rounded h-24"
+            >
+              {zoneHeads.map((zh) => <option key={zh._id} value={zh._id}>{zh.fullName || zh.email} • {zh.zone || "N/A"}</option>)}
+            </select>
+          </div>
+        </div>
+        <Button className="mt-3" onClick={assignTaskToZoneHeads}>Assign to Zone Heads</Button>
+      </div>
+
       <div className="space-y-4">
         {tasks.filter(t => filter === "all" ? true : filter === "active" ? !!t.active : !t.active).map((t) => (
           <div key={t._id} className="p-4 border rounded-xl">
@@ -170,6 +248,7 @@ export default function TaskEngine() {
               </div>
             </div>
             <div className="mt-2 text-sm">{t.description}</div>
+            <div className="mt-2 text-xs text-muted-foreground">Deadline: {t.deadline ? new Date(t.deadline).toLocaleString() : '—'}</div>
             <div className="mt-3 flex gap-2">
               <Button size="sm" onClick={() => startEdit(t)}>Edit</Button>
               <Button size="sm" variant="outline" onClick={() => deleteTask(t._id)}>Delete</Button>

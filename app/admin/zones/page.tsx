@@ -37,6 +37,25 @@ export default function AdminZonesPage() {
     }
   }
 
+  async function runBackfill() {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    if (!token) return alert('Please login as ADMIN')
+    const res = await fetch('/api/admin/assign-zones', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+    if (res.ok) {
+      const d = await res.json().catch(() => ({}))
+      alert('Backfill complete. Updated: ' + (d.updated ?? 'unknown'))
+      // reload zones
+      const r2 = await fetch('/api/admin/zones')
+      if (r2.ok) {
+        const dd = await r2.json().catch(() => ({}))
+        setZones(dd.zones || [])
+      }
+    } else {
+      const err = await res.json().catch(() => ({}))
+      alert('Failed: ' + (err.error || res.status))
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto py-10">
       <h1 className="text-2xl font-black mb-4">Manage Zones</h1>
@@ -47,8 +66,9 @@ export default function AdminZonesPage() {
             <input placeholder="Pin prefixes (comma separated) e.g. 12,13" value={prefixes} onChange={e => setPrefixes(e.target.value)} className="p-2 border rounded" />
             <input placeholder="Optional head userId" value={headUserId} onChange={e => setHeadUserId(e.target.value)} className="p-2 border rounded" />
           </div>
-          <div>
+          <div className="flex gap-2">
             <button className="px-4 py-2 rounded bg-primary text-white font-bold" type="submit">Create Zone</button>
+            <button type="button" onClick={runBackfill} className="px-4 py-2 rounded bg-secondary text-white">Backfill Assign Zones</button>
           </div>
         </form>
         {zones.map((z, i) => (

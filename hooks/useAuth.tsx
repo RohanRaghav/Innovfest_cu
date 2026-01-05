@@ -8,6 +8,11 @@ export type UserProfile = {
   fullName?: string
   phone?: string
   college?: string
+  uid?: string
+  referralCode?: string
+  emailVerified?: boolean
+  points?: number
+  tasksDone?: number
   zone?: string
   role: "CA" | "ZONE_HEAD" | "ADMIN"
 }

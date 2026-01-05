@@ -56,6 +56,7 @@ export async function PATCH(
     const now = new Date();
 
     if (body.action === "APPROVE") {
+      if (submission.status === "APPROVED") return NextResponse.json({ error: "Already approved" }, { status: 400 })
       const awarded = body.points !== undefined ? Number(body.points) : submission.points || 0;
 
       await submissions.updateOne(
@@ -65,7 +66,7 @@ export async function PATCH(
 
       await users.updateOne(
         { _id: new ObjectId(submission.userId) },
-        { $inc: { points: awarded }, $set: { updatedAt: now } }
+        { $inc: { points: awarded, tasksDone: 1 }, $set: { updatedAt: now } }
       );
 
       const evaluations = db.collection("evaluations");
@@ -77,6 +78,13 @@ export async function PATCH(
         reviewer: String(userId),
         createdAt: now
       });
+
+      // If there is an assignment for this task and user, mark it completed
+      const assignments = db.collection("assignments");
+      await assignments.updateOne(
+        { taskId: submission.taskId, assigneeId: submission.userId, status: "PENDING" },
+        { $set: { status: "COMPLETED", completedAt: now, awardedPoints: awarded } }
+      );
 
       return NextResponse.json({ ok: true });
     } else {

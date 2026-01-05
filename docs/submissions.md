@@ -13,7 +13,7 @@ Server side:
 - `POST /api/submissions` — create a submission (authenticated). Requires `taskId` and `mediaUrl`.
 - `GET /api/submissions` — for admin (all) and zone heads (zone-limited)
 - `GET /api/submissions/me` — returns own submissions
-- `PATCH /api/submissions/[id]` — Admin or Zone Head reviews and either APPROVE or REJECT. On APPROVE, user's `points` field is incremented and a record is inserted into `evaluations` collection.
+- `PATCH /api/submissions/[id]` — Admin or Zone Head reviews and either APPROVE or REJECT. On APPROVE, user's `points` field is incremented, `tasksDone` is incremented by 1, the related `assignments` document (if any) is marked COMPLETED, and a record is inserted into `evaluations` collection.
 
 UI:
 - Task list has `SubmitProof` component to upload files and create submissions.
