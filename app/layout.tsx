@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "CU TechFest | Campus Ambassador Portal",
+  title: "CU InnovFest | Campus Ambassador Portal",
   description: "Join the elite force representing Chandigarh University’s premier tech festival.",
   generator: "Rohan Raghav",
 }
