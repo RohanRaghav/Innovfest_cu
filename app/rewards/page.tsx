@@ -8,7 +8,7 @@ import { Trophy, Gift, Smartphone, Monitor, Star, ShieldCheck, Award } from "luc
 export default function RewardsPage() {
   const tiers = [
     {
-      rank: "Top 50",
+      rank: "Top 100-150",
       title: "Bronze Badge",
       prize: "25% free Hostel Accomodation",
       benefits: ["Free any one Events", "Goodies and Merchandise", "Offline Certificate"],
