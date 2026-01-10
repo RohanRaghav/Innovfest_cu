@@ -1,0 +1,86 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+enum UserRole {
+  ADMIN
+  ZONAL_HEAD
+  CAMPUS_AMBASSADOR
+}
+
+enum Zone {
+  EAST
+  WEST
+  NORTH
+  SOUTH
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String    @unique
+  password       String
+  phone          String?
+  role           UserRole
+  zone           Zone?
+  college        String?
+  target         Int?      @default(0)
+  currentCount   Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdById    String?   @map("created_by") @db.ObjectId
+  createdBy      User?     @relation("CreatedUsers", fields: [createdById], references: [id])
+  createdUsers   User[]    @relation("CreatedUsers")
+  students       Student[]
+  badges         UserBadge[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([zone])
+  @@index([createdById])
+}
+
+model Student {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String
+  phone          String
+  college        String
+  createdAt      DateTime  @default(now())
+  registeredById String    @map("registered_by_id") @db.ObjectId
+  registeredBy   User      @relation(fields: [registeredById], references: [id])
+  
+  @@index([email])
+  @@index([registeredById])
+}
+
+model Badge {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String?
+  targetCount    Int
+  icon           String?
+  createdAt      DateTime  @default(now())
+  
+  @@index([targetCount])
+}
+
+model UserBadge {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @map("user_id") @db.ObjectId
+  badgeId   String   @map("badge_id") @db.ObjectId
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
